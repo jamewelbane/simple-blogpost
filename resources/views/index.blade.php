@@ -6,171 +6,149 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Home</title>
-
-    <style>
-        .reg-form {
-            margin: 5px;
-            padding: 5px;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 </head>
 
 <body>
 
-    <div>
-        @if ($errors->any())
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        @endif
+    <div class="navbar">
+        <div class="navbar-left">
+            <a href="/">Home</a>
+            <a href="/newsfeed">Newsfeed</a>
+            <a href="/">Profile</a>
+        </div>
+        <div class="navbar-right">
+            @auth
+                <form action="/logout" method="post" style="display: inline;">
+                    @csrf
+                    <button>Log out</button>
+                </form>
+            @else
+                <a href="/login">Log in</a>
+                <a href="/register">Sign Up</a>
+            @endauth
+        </div>
     </div>
 
-    <div>
-        @if (session('error'))
-            <p>{{ session('error') }}</p>
-            <a href="/"><button>OK</button></a>
-        @endif
-
-        @if (session('success'))
-            <p>{{ session('success') }}</p>
-            <a href="/"><button>OK</button></a>
-        @endif
-    </div>
-
-
-    @auth
-
-
-        <div style="border: 2px solid black">
-            <h1>Logged in</h1>
-
-            {{-- logout --}}
-            <div>
-                <form action="/logout" method="post">
-                    @csrf
-                    <div class="reg-form">
-                        <button>Log out</button>
-                    </div>
-                </form>
-            </div>
-
-            {{-- Go to your profile --}}
-            <div class="reg-form">
-                <a href="/"><button>Me</button></a>
-            </div>
-
-            {{-- Go to newsfeed --}}
-            <div class="reg-form">
-                <a href="/newsfeed"><button>Newsfeed</button></a>
-            </div>
-            
+    <div class="container">
+        <div>
+            @if ($errors->any())
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            @endif
         </div>
 
-        {{-- create post --}}
-        <div style="border: 2px solid black; margin-top: 10px;">
-            <h1>Share something</h1>
-            <div>
-                <form action="/blog-post" method="post">
-                    @csrf
+        <div>
+            @if (session('error'))
+                <div class="message error">{{ session('error') }}</div>
+                <a href="/"><button>OK</button></a>
+            @endif
 
-                    <div class="reg-form">
-                        <input type="text" name="title" placeholder="Title">
-                    </div>
-
-                    <div class="reg-form">
-                        <textarea name="body" cols="30" rows="10" placeholder="What's on your mind?"></textarea>
-                    </div>
-
-                    <div class="reg-form">
-                        <button>Post</button>
-                    </div>
-                </form>
-            </div>
+            @if (session('success'))
+                <div class="message success">{{ session('success') }}</div>
+                <a href="/"><button>OK</button></a>
+            @endif
         </div>
 
-        {{-- Display the post --}}
-        <div style=" margin-top: 10px;">
-            <h1>Your BlogPost</h1>
-            <div>
-                @foreach ($fetchPost as $post)
-                    <div style="border: 2px solid black; margin: 10px; padding: 10px">
-                        <h2>{{ $post['title'] }}</h2>
-                        <p>{{ $post['body'] }}</p>
-                        
+        @auth
+            <div style="border: 2px solid black">
+                <h1>Logged in</h1>
+                <div style="margin-left: 2px">
+                    <h2>Hello, {{auth()->user()->name}}!</h2>
+                </div>
+               
+            </div>
 
-                        <div style="display: flex; align-items: center;">
-                            <a href="/edit-post/{{ $post->id }}"><button style="margin-right: 10px;">Edit</button></a>
-                            <form action="/delete-post/{{ $post->id }}" method="post" style="margin-right: 10px;">
-                                @csrf
-                                @method('delete')
-                                <button>Delete</button>
-                            </form>
+            {{-- create post --}}
+            <div style="border: 2px solid black; margin-top: 10px;">
+                <h1>Share something</h1>
+                <div>
+                    <form action="/blog-post" method="post">
+                        @csrf
+                        <div class="reg-form">
+                            <input type="text" name="title" placeholder="Title">
                         </div>
-
-                    </div>
-                @endforeach
+                        <div class="reg-form">
+                            <textarea name="body" cols="30" rows="10" placeholder="What's on your mind?"></textarea>
+                        </div>
+                        <div class="reg-form">
+                            <button>Post</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
-    @else
-        <div style="border: 2px solid black; margin-bottom: 10px;">
-            <h1>Log in</h1>
-            <div>
-                <form action="/login" method="post">
-                    @csrf
-                    @method('post')
-                    <div class="reg-form">
-                        <label>Name</label>
-                        <input type="text" name="loginname" placeholder="Enter your name">
-                    </div>
 
-                    <div class="reg-form">
-                        <label>Password</label>
-                        <input type="password" name="loginpassword" placeholder="Enter your password">
-                    </div>
-
-                    <div class="reg-form">
-                        <button>Login</button>
-                    </div>
-
-                </form>
+            {{-- Display the post --}}
+            <div style="margin-top: 10px;">
+                <h1>Your BlogPost</h1>
+                <div>
+                    @foreach ($fetchPost as $post)
+                        <div class="post">
+                            <h2>{{ $post['title'] }}</h2>
+                            <p>{{ $post['body'] }}</p>
+                            <div class="actions">
+                                <a href="/edit-post/{{ $post->id }}"><button>Edit</button></a>
+                                <form action="/delete-post/{{ $post->id }}" method="post">
+                                    @csrf
+                                    @method('delete')
+                                    <button>Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
             </div>
-        </div>
-
-
-        <div style="border: 2px solid black">
-            <h1>Create An Account</h1>
-            <div>
-                <form action="/register" method="post">
-                    @csrf
-                    @method('post')
-                    <div class="reg-form">
-                        <label>Name</label>
-                        <input type="text" name="name" placeholder="Enter your name">
-                    </div>
-
-                    <div class="reg-form">
-                        <label>Email</label>
-                        <input type="email" name="email" placeholder="Enter your email">
-                    </div>
-
-                    <div class="reg-form">
-                        <label>Password</label>
-                        <input type="password" name="password" placeholder="Enter your password">
-                    </div>
-
-                    <div class="reg-form">
-                        <button>SignUp</button>
-                    </div>
-
-                </form>
+        @else
+            <div class="container">
+                <h1>Log in</h1>
+                <div>
+                    <form action="/login" method="post">
+                        @csrf
+                        @method('post')
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" name="loginname" placeholder="Enter your name">
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" name="loginpassword" placeholder="Enter your password">
+                        </div>
+                        <div class="form-group">
+                            <button>Login</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
-    @endauth
 
-
-
+            <div class="container">
+                <h1>Create An Account</h1>
+                <div>
+                    <form action="/register" method="post">
+                        @csrf
+                        @method('post')
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" name="name" placeholder="Enter your name">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="email" placeholder="Enter your email">
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" name="password" placeholder="Enter your password">
+                        </div>
+                        <div class="form-group">
+                            <button>SignUp</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @endauth
+    </div>
 
 </body>
 

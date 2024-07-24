@@ -43,7 +43,7 @@ class UserController extends Controller
             $request->session()->regenerate();
 
             // Get the authenticated user
-            $user = auth()->user();
+            $user = auth()->user()->id;
 
             // Pass $user to the view
             return redirect('/')->with('success', 'You are successfully logged in!')->with('user', $user);

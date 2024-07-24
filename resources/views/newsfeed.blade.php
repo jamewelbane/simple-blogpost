@@ -27,15 +27,21 @@
         @endif
     </div>
 
-   
+
 
 
     @auth
+        @php
+            $userID = auth()->user()->id;
+            $userName = auth()->user()->name;
+        @endphp
 
-    {{-- navigation --}}
+        {{-- navigation --}}
         <div style="border: 2px solid black">
             <h1>Logged in</h1>
-
+            <div style="margin-left: 2px">
+                <h2>Hello, {{ $userName }}!</h2>
+            </div>
             {{-- logout --}}
             <div>
                 <form action="/logout" method="post">
@@ -56,11 +62,11 @@
                 <a href="/newsfeed"><button>Newsfeed</button></a>
             </div>
 
-            
-            
+
+
         </div>
 
-      
+
 
         {{-- Display the post --}}
         <div style="margin-top: 10px;">
@@ -71,6 +77,20 @@
                         <h2>{{ $allPost->title }}</h2>
                         <p>{{ $allPost->body }}</p>
                         <p>By: {{ $allPost->user->name }}</p>
+
+
+                        @if ($allPost->user_id == $userID)
+                            <div style="display: flex; align-items: center;">
+                                <a href="/edit-post/{{ $allPost->id }}"><button
+                                        style="margin-right: 10px;">Edit</button></a>
+                                <form action="/delete-post/{{ $allPost->id }}" method="post" style="margin-right: 10px;">
+                                    @csrf
+                                    @method('delete')
+                                    <button>Delete</button>
+                                </form>
+                            </div>
+                        @endif
+
                     </div>
                 @endforeach
             </div>

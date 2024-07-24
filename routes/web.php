@@ -51,3 +51,4 @@ Route::get('/newsfeed', function () {
 
     return view('newsfeed', ['fetchAllPost'=> $getAllPost]);
 });
+
